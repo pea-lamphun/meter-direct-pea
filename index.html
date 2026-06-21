@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#5B2B82" />
+<title>ระบบชุดอุปกรณ์ช่วยต่อตรงมิเตอร์ฉุกเฉิน - PEA ลำพูน</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --primary:#5B2B82; --primary-700:#46206A; --primary-50:#F4ECFA;
+    --gold:#C49A3A;
+    --bg:#F4F4F8; --card:#FFFFFF;
+    --text:#1F2430; --muted:#6B7280; --border:#E6E8EE; --border-2:#D7DBE2;
+    --red:#DC2626; --red-50:#FDECEC;
+    --green:#16A34A; --green-50:#E8F8EE;
+    --shadow:0 1px 3px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.05);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Sarabun',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; line-height:1.5}
+  h1,h2,h3,.font-display{font-family:'Prompt','Sarabun',sans-serif}
+  button{font-family:inherit; cursor:pointer}
+  input,select,textarea{font-family:inherit}
+
+  /* ===== App bar ===== */
+  .appbar{background:var(--card); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20}
+  .appbar-inner{max-width:760px; margin:0 auto; padding:13px 18px; display:flex; align-items:center; gap:12px}
+  body[data-view="admin"] .appbar-inner{max-width:1200px}
+  .logo{width:44px; height:44px; border-radius:13px; background:linear-gradient(135deg,var(--primary),var(--primary-700));
+    display:grid; place-items:center; color:#fff; flex:none; box-shadow:0 4px 12px rgba(91,43,130,.28)}
+  .title{font-weight:700; font-size:1.0rem; line-height:1.25}
+  .subtitle{color:var(--muted); font-size:.8rem; margin-top:1px}
+  .bar-spacer{flex:1}
+  .icon-btn{width:40px; height:40px; border-radius:11px; border:1px solid var(--border); background:#fff; color:var(--muted);
+    display:grid; place-items:center; transition:background .12s}
+  .icon-btn:hover{background:var(--primary-50); color:var(--primary)}
+
+  /* ===== Layout ===== */
+  .wrap{max-width:760px; margin:0 auto; padding:20px 18px 60px}
+  body[data-view="admin"] .wrap{max-width:1200px}
+  .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+  .intro{display:flex; gap:12px; align-items:flex-start; background:var(--primary-50); border:1px solid #E7D8F2;
+    border-radius:14px; padding:14px 16px; margin-bottom:18px; color:#5a3a78; font-size:.92rem}
+  .intro b{color:var(--primary-700)}
+
+  /* ===== Form ===== */
+  form{padding:20px 18px}
+  .field{margin-bottom:18px}
+  .field:last-child{margin-bottom:0}
+  label{display:block; font-weight:600; font-size:.95rem; margin-bottom:7px}
+  .req{color:var(--red); margin-left:3px}
+  .hint{color:var(--muted); font-weight:400; font-size:.82rem; margin-top:5px}
+  .opt{color:var(--muted); font-weight:400; font-size:.82rem; margin-left:6px}
+  .input, select{width:100%; padding:13px 14px; border:1.5px solid var(--border-2); border-radius:11px;
+    font-size:1rem; background:#fff; color:var(--text); transition:border-color .15s, box-shadow .15s}
+  .input:focus, select:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(91,43,130,.13)}
+  .input.err, select.err{border-color:var(--red); box-shadow:0 0 0 3px rgba(220,38,38,.1)}
+  select{appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat:no-repeat; background-position:right 13px center; padding-right:42px}
+  .photo-box{border:2px dashed var(--border-2); border-radius:13px; background:#FAFAFC;
+    min-height:150px; display:grid; place-items:center; cursor:pointer; overflow:hidden;
+    transition:border-color .15s, background .15s; position:relative}
+  .photo-box:hover{border-color:var(--primary); background:var(--primary-50)}
+  .photo-box.err{border-color:var(--red)}
+  .photo-box img{width:100%; height:100%; max-height:280px; object-fit:contain; display:block}
+  .photo-ph{text-align:center; color:var(--muted); padding:22px}
+  .photo-ph .ico{font-size:1.7rem}
+  .photo-ph .t{font-weight:600; margin-top:6px; color:#4b5563}
+  .photo-ph .s{font-size:.8rem; margin-top:2px}
+  .photo-redo{position:absolute; right:10px; bottom:10px; background:rgba(31,36,48,.82); color:#fff;
+    border:none; border-radius:9px; padding:7px 13px; font-size:.82rem; font-weight:600}
+  .btn{width:100%; padding:15px; border:none; border-radius:12px; font-size:1.05rem; font-weight:600;
+    color:#fff; background:linear-gradient(135deg,var(--primary),var(--primary-700));
+    box-shadow:0 6px 16px rgba(91,43,130,.28); transition:transform .08s, opacity .15s; margin-top:6px}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.6; cursor:not-allowed}
+  .btn .spin{display:inline-block; width:17px; height:17px; border:2.5px solid rgba(255,255,255,.4);
+    border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-3px; margin-right:8px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .done{padding:46px 22px; text-align:center}
+  .done .ring{width:84px; height:84px; border-radius:50%; background:var(--green-50);
+    display:grid; place-items:center; margin:0 auto 16px; color:var(--green)}
+  .done h2{margin:0 0 6px; font-size:1.4rem}
+  .done p{color:var(--muted); margin:0 0 22px}
+
+  /* ===== KPI cards (Dashboard) ===== */
+  .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:16px}
+  .kpi{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); position:relative; overflow:hidden}
+  .kpi .lab{color:var(--muted); font-size:.86rem; font-weight:500}
+  .kpi .num{font-family:'Prompt',sans-serif; font-size:2.05rem; font-weight:700; line-height:1.1; margin-top:6px}
+  .kpi .accent{position:absolute; left:0; top:0; bottom:0; width:5px}
+  .kpi.total .accent{background:var(--primary)}
+  .kpi.active .accent{background:var(--red)} .kpi.active .num{color:var(--red)}
+  .kpi.done .accent{background:var(--green)} .kpi.done .num{color:var(--green)}
+  .kpi.dev .accent{background:var(--gold)} .kpi.dev .num{color:#9a7522}
+  .devrow{background:var(--card); border:1px solid var(--border); border-radius:13px; padding:12px 16px; margin-bottom:18px;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap; box-shadow:var(--shadow); font-size:.9rem}
+  .devrow .dl{color:var(--muted); font-weight:600}
+  .dev-chip{background:#FFF6E5; color:#8a6914; border:1px solid #F0E0B5; border-radius:999px; padding:3px 11px; font-weight:600; font-size:.85rem}
+  .dev-none{color:var(--green); font-weight:600}
+
+  /* ===== Charts ===== */
+  .charts{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:18px}
+  .chart-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px 18px}
+  .chart-card.full{grid-column:1 / -1}
+  .chart-h{font-family:'Prompt',sans-serif; font-weight:600; font-size:.95rem; margin-bottom:16px; color:var(--text)}
+  .chart-empty{color:var(--muted); font-size:.88rem; text-align:center; padding:30px 10px}
+  .vbar-scroll{overflow-x:auto; padding-bottom:4px}
+  .vbar-chart{display:flex; align-items:flex-end; gap:10px}
+  .vbar-col{display:flex; flex-direction:column; align-items:center; flex:1; min-width:36px}
+  .vbar-bararea{height:172px; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end}
+  .vbar-val{font-size:.78rem; font-weight:700; color:var(--primary-700); margin-bottom:5px}
+  .vbar-fill{width:100%; max-width:30px; background:linear-gradient(180deg,#7C4BA6,var(--primary)); border-radius:6px 6px 0 0; min-height:3px}
+  .vbar-x{font-size:.72rem; color:var(--muted); margin-top:8px; white-space:nowrap}
+  .hbar-list{display:flex; flex-direction:column; gap:11px}
+  .hbar-row{display:grid; grid-template-columns:minmax(72px,150px) 1fr auto; align-items:center; gap:10px}
+  .hbar-name{font-size:.85rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .hbar-track{background:#EEF0F4; border-radius:999px; height:16px; overflow:hidden}
+  .hbar-fill{height:100%; background:linear-gradient(90deg,var(--gold),#E0B85A); border-radius:999px; min-width:4px}
+  .hbar-val{font-weight:700; font-size:.85rem; color:#9a7522; min-width:18px; text-align:right}
+  .donut-wrap{display:flex; align-items:center; gap:20px; flex-wrap:wrap; justify-content:center}
+  .donut-num{font-family:'Prompt',sans-serif; font-size:28px; font-weight:700; fill:var(--text)}
+  .donut-lab{font-size:12px; fill:var(--muted)}
+  .donut-legend{display:flex; flex-direction:column; gap:10px; font-size:.9rem}
+  .donut-legend b{margin-left:5px}
+  .lg-dot{display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; vertical-align:middle}
+  @media (max-width:760px){ .charts{grid-template-columns:1fr} }
+
+  /* ===== GPS (form capture + dashboard view) ===== */
+  .gps-capture{width:100%; padding:13px; border:1.5px dashed var(--primary); background:var(--primary-50); color:var(--primary-700); border-radius:11px; font-weight:600; font-size:.95rem; display:flex; align-items:center; justify-content:center; gap:8px}
+  .gps-capture:disabled{opacity:.7}
+  .spin-dark{border:2.5px solid rgba(91,43,130,.3); border-top-color:var(--primary)}
+  .gps-box{border:1.5px solid var(--green); background:var(--green-50); border-radius:11px; padding:12px 14px}
+  .gps-ok{display:flex; gap:10px; align-items:flex-start}
+  .gps-pin{font-size:1.2rem; line-height:1.2}
+  .gps-coord{font-weight:700; font-variant-numeric:tabular-nums; color:#15803d}
+  .gps-acc{font-size:.8rem; color:var(--muted); margin-top:2px}
+  .gps-acc a{color:var(--primary); font-weight:600}
+  .gps-actions{display:flex; gap:8px; margin-top:10px}
+  .gps-btn-sm{flex:1; border:1px solid var(--border-2); background:#fff; color:var(--text); border-radius:9px; padding:8px; font-size:.85rem; font-weight:600}
+  .gps-btn-sm.clear{border-color:#F0C2C2; color:var(--red)}
+  .gps-cell-btn{display:inline-flex; align-items:center; gap:5px; border:1px solid var(--primary); color:var(--primary); background:#fff; border-radius:8px; padding:6px 10px; font-size:.82rem; font-weight:600; white-space:nowrap}
+  .gps-cell-btn:hover{background:var(--primary-50)}
+  .gps-cell-btn.card-gps{width:100%; justify-content:center; padding:9px; margin:2px 0 12px}
+  .gps-coord-big{font-family:'Prompt',sans-serif; font-weight:700; font-size:1.15rem; text-align:center; background:#F4ECFA; color:var(--primary-700); border-radius:10px; padding:12px; margin-bottom:14px; font-variant-numeric:tabular-nums}
+  .gps-modal-actions{display:flex; flex-direction:column; gap:9px}
+  .gps-act{width:100%; padding:12px; border:1px solid var(--border-2); background:#fff; border-radius:10px; font-weight:600; font-size:.92rem; color:var(--text)}
+  .gps-act:hover{background:#FAFAFC}
+  .gps-act.primary{background:linear-gradient(135deg,var(--primary),var(--primary-700)); color:#fff; border:none}
+
+  /* ===== Toolbar ===== */
+  .toolbar{display:flex; gap:12px; align-items:center; margin-bottom:14px; flex-wrap:wrap}
+  .tabs{display:inline-flex; background:var(--card); border:1px solid var(--border); border-radius:11px; padding:4px; gap:3px}
+  .tab{border:none; background:transparent; color:var(--muted); padding:8px 14px; border-radius:8px; font-weight:600; font-size:.9rem}
+  .tab.on{background:var(--primary); color:#fff}
+  .tab .cnt{opacity:.75; margin-left:5px; font-weight:600}
+  .search{flex:1; min-width:200px; position:relative}
+  .search input{width:100%; padding:11px 14px 11px 40px; border:1.5px solid var(--border-2); border-radius:11px; font-size:.95rem; background:#fff}
+  .search input:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(91,43,130,.13)}
+  .search svg{position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--muted)}
+  .period-sel{appearance:none; width:auto; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:600; font-size:.9rem; border-radius:11px; padding:9px 36px 9px 14px; cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat:no-repeat; background-position:right 12px center}
+  .period-sel:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(91,43,130,.13)}
+
+  /* ===== Table (desktop) ===== */
+  .table-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
+  .tscroll{overflow-x:auto}
+  table{width:100%; border-collapse:collapse; min-width:1280px}
+  thead th{background:#FAFAFC; text-align:left; font-size:.82rem; color:#52607a; font-weight:700; padding:13px 14px;
+    border-bottom:1px solid var(--border); white-space:nowrap; position:sticky; top:0}
+  tbody td{padding:13px 14px; border-bottom:1px solid #F0F1F5; font-size:.9rem; vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#FCFBFE}
+  .dt{white-space:nowrap; color:#374151}
+  .dt .d{font-weight:600} .dt .t{color:var(--muted); font-size:.82rem}
+  .meter-no{font-weight:600; font-variant-numeric:tabular-nums}
+  .muted-cell{color:var(--muted)}
+  .devbadge{display:inline-grid; place-items:center; min-width:30px; height:30px; padding:0 8px; border-radius:8px;
+    background:var(--primary-50); color:var(--primary-700); font-weight:700; font-size:.9rem}
+  .thumb{width:54px; height:54px; border-radius:9px; object-fit:cover; cursor:pointer; border:1px solid var(--border); display:block; background:#f0f0f3}
+  .chip{display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:6px 13px; font-weight:600; font-size:.85rem; color:#fff; white-space:nowrap}
+  .chip.red{background:var(--red)}
+  .chip.green{background:var(--green)}
+  .chip .dot{width:7px; height:7px; border-radius:50%; background:#fff; opacity:.9}
+  .act-btn{margin-top:8px; display:block; border:1px solid var(--green); color:var(--green); background:#fff; border-radius:9px;
+    padding:7px 11px; font-size:.82rem; font-weight:600; transition:background .12s}
+  .act-btn:hover{background:var(--green-50)}
+  .revert{margin-top:8px; display:block; border:none; background:transparent; color:var(--muted); font-size:.78rem; text-decoration:underline; padding:2px}
+  .del-btn{border:1px solid #F0C2C2; color:var(--red); background:#fff; border-radius:8px; width:34px; height:34px; display:inline-grid; place-items:center; transition:background .12s, border-color .12s}
+  .del-btn:hover{background:var(--red-50); border-color:var(--red)}
+  .empty{padding:54px 20px; text-align:center; color:var(--muted)}
+  .empty .ico{font-size:2.2rem; opacity:.5}
+
+  /* ===== Mobile cards ===== */
+  .cards{display:none}
+  .rcard{background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:15px; margin-bottom:13px}
+  .rcard .top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px}
+  .rcard .when{font-size:.8rem; color:var(--muted)}
+  .rcard .mno{font-family:'Prompt',sans-serif; font-weight:700; font-size:1.05rem; margin-top:2px}
+  .rcard dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:.9rem}
+  .rcard dt{color:var(--muted)} .rcard dd{margin:0; text-align:right; font-weight:500; word-break:break-word}
+  .rcard .photos{display:flex; gap:9px; margin:12px 0}
+  .rcard .photos figure{margin:0; flex:1}
+  .rcard .photos figcaption{font-size:.72rem; color:var(--muted); margin-bottom:4px; text-align:center}
+  .rcard .photos img{width:100%; height:96px; object-fit:cover; border-radius:9px; border:1px solid var(--border); cursor:pointer; background:#f0f0f3}
+  .rcard .foot{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:6px; border-top:1px solid #F0F1F5; padding-top:12px; flex-wrap:wrap}
+  .rcard .mact{border:1px solid var(--green); color:var(--green); background:#fff; border-radius:10px; padding:9px 14px; font-weight:600; font-size:.85rem}
+
+  /* ===== Lightbox ===== */
+  .lb{position:fixed; inset:0; background:rgba(15,18,28,.88); z-index:100; display:grid; place-items:center; padding:18px}
+  .lb img{max-width:100%; max-height:88vh; border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .lb-x{position:fixed; top:16px; right:18px; width:44px; height:44px; border-radius:50%; border:none; background:rgba(255,255,255,.15);
+    color:#fff; font-size:1.5rem; display:grid; place-items:center}
+  .lb-cap{position:fixed; bottom:18px; left:0; right:0; text-align:center; color:#fff; font-size:.9rem; opacity:.85}
+
+  /* ===== Modal (เปลี่ยน PIN) ===== */
+  .modal-bg{position:fixed; inset:0; background:rgba(15,18,28,.5); z-index:80; display:grid; place-items:center; padding:20px}
+  .modal{width:100%; max-width:380px; background:#fff; border-radius:18px; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .modal h3{margin:0 0 4px}
+  .modal p{color:var(--muted); font-size:.86rem; margin:0 0 16px}
+  .modal label{display:block; font-weight:600; font-size:.9rem; margin:12px 0 6px}
+  .modal input{width:100%; padding:12px 14px; border:1.5px solid var(--border-2); border-radius:10px; font-size:1.1rem; letter-spacing:6px; text-align:center}
+  .modal input:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(91,43,130,.13)}
+  .modal .row{display:flex; gap:10px; margin-top:20px}
+  .modal .row button{flex:1; padding:12px; border-radius:10px; font-weight:600; font-size:.95rem; border:none}
+  .modal .cancel{background:#F1F2F6; color:#475467}
+  .modal .save{background:linear-gradient(135deg,var(--primary),var(--primary-700)); color:#fff}
+  .modal .del-confirm{background:linear-gradient(135deg,var(--red),#b91c1c); color:#fff}
+  .modal .mmsg{font-size:.85rem; margin-top:10px; min-height:18px; font-weight:500}
+
+  /* ===== Toast ===== */
+  .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:90; background:#1f2937; color:#fff;
+    padding:13px 20px; border-radius:12px; font-weight:500; box-shadow:0 10px 30px rgba(0,0,0,.25); display:flex; align-items:center; gap:9px; max-width:90vw}
+  .toast.ok{background:#15803d}
+  .toast.bad{background:#b91c1c}
+
+  /* ===== PIN gate ===== */
+  .pin-screen{min-height:100dvh; display:grid; place-items:center; padding:24px; background:radial-gradient(1200px 600px at 50% -10%, #ECE0F6 0%, var(--bg) 55%)}
+  .pin-card{width:100%; max-width:360px; background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:0 20px 50px rgba(16,24,40,.1); padding:30px 26px; text-align:center}
+  .pin-card .logo{width:56px; height:56px; border-radius:16px; margin:0 auto 16px}
+  .pin-card h2{margin:0; font-size:1.2rem}
+  .pin-card .desc{color:var(--muted); font-size:.88rem; margin:6px 0 22px}
+  .pin-dots{display:flex; gap:14px; justify-content:center; margin-bottom:8px}
+  .pin-dot{width:15px; height:15px; border-radius:50%; border:2px solid var(--border-2); background:#fff; transition:all .15s}
+  .pin-dot.on{background:var(--primary); border-color:var(--primary); transform:scale(1.05)}
+  .pin-dot.bad{background:var(--red); border-color:var(--red); animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .pin-msg{font-size:.85rem; height:20px; margin-bottom:14px; color:var(--red); font-weight:500}
+  .keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+  .key{height:62px; border-radius:14px; border:1px solid var(--border); background:#fff; font-size:1.4rem; font-weight:600; color:var(--text); transition:background .12s, transform .06s}
+  .key:active{background:var(--primary-50); transform:scale(.96)}
+  .key.fn{font-size:.95rem; color:var(--muted); background:#FAFAFC}
+  .key.blank{background:transparent; border:none; cursor:default}
+  .setup-note{background:#FFF8E8; border:1px solid #F0E0B5; color:#7a5d12; border-radius:11px; padding:10px 13px; font-size:.82rem; margin-bottom:18px; text-align:left}
+
+  /* ===== Responsive ===== */
+  @media (max-width:980px){ .kpis{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:760px){
+    .title{font-size:.9rem} .subtitle{font-size:.73rem}
+    .wrap{padding:16px 14px 56px}
+    form{padding:18px 15px}
+    .table-card{background:transparent; border:none; box-shadow:none; overflow:visible}
+    .tscroll{display:none}
+    .cards{display:block}
+    .toolbar{gap:10px}
+    .kpi .num{font-size:1.7rem}
+  }
+  @media (max-width:420px){ .kpis{gap:10px} .kpi{padding:14px} }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<!-- React + Babel (pin Babel @7) -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+<script type="text/babel">
+/* ============================================================
+   ⚙️  CONFIG — แก้ไขที่เดียว (ใช้ทั้งหน้าฟอร์มและ Dashboard)
+   ============================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyD_4pudGRmwZeTM6kYIjFTJbuQ45kFXhPI",
+  authDomain:        "pea-meter-direct.firebaseapp.com",
+  databaseURL:       "https://pea-meter-direct-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "pea-meter-direct",
+  storageBucket:     "pea-meter-direct.firebasestorage.app",
+  messagingSenderId: "189701628688",
+  appId:             "1:189701628688:web:559d8306b62d185de97b95"
+};
+const IMGBB_KEY       = "906f6ec77af88f56409be021dac1625a";   // คีย์ ImgBB สำหรับอัปโหลดรูปในหน้าฟอร์ม
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRxhbxYhJqJhO9XWG_HBah3Wd5EimOypGKXkcmIAgIu5-nuOCIT91tPdMNMeaaULiF7w/exec";   // relay แจ้งเตือน LINE
+const DEVICE_COUNT    = 20;                    // จำนวนเครื่องนวัตกรรม (dropdown 1..20)
+/* ============================================================
+   2 ลิงค์การใช้งาน — ไฟล์เดียวกัน แยกด้วยท้าย URL:
+     • ฟอร์มกรอกข้อมูล (ช่างแก้ไฟ)   →  <url>/
+     • Dashboard (ช่างแผนกมิเตอร์)    →  <url>/#admin
+   ============================================================ */
+
+const { useState, useEffect, useRef, useMemo } = React;
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.database();
+
+const ST_ACTIVE = "ต่อตรง";
+const ST_DONE   = "ต่อกลับเรียบร้อย";
+const DASH_URL  = location.origin + location.pathname + "#admin";  // ลิงค์ Dashboard (แนบในข้อความ LINE)
+
+/* ---------- helpers ---------- */
+const norm = (s) => (s == null ? "" : String(s)).replace(/[\u200B-\u200D\uFEFF\u00A0]/g, "").trim();
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+function loadImage(file){
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = rej;
+    img.src = url;
+  });
+}
+async function resizeImage(file, maxDim = 1280, quality = 0.82){
+  try{
+    const img = await loadImage(file);
+    let { naturalWidth:w, naturalHeight:h } = img;
+    if (Math.max(w,h) > maxDim){ const sc = maxDim / Math.max(w,h); w = Math.round(w*sc); h = Math.round(h*sc); }
+    const cv = document.createElement("canvas");
+    cv.width = w; cv.height = h;
+    cv.getContext("2d").drawImage(img, 0, 0, w, h);
+    return await new Promise(r => cv.toBlob(r, "image/jpeg", quality));
+  }catch(e){ return file; }
+}
+async function uploadToImgBB(blob){
+  const fd = new FormData();
+  fd.append("image", blob, "photo.jpg");
+  const r = await fetch("https://api.imgbb.com/1/upload?key=" + encodeURIComponent(IMGBB_KEY), { method:"POST", body: fd });
+  const j = await r.json();
+  if (!j || !j.success) throw new Error("อัปโหลดรูปไม่สำเร็จ");
+  const d = j.data;
+  return { url: d.display_url || d.url, thumb: (d.thumb && d.thumb.url) || d.display_url || d.url };
+}
+
+const TH_M = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+function fmtDate(ms){ const d = new Date(ms); return `${d.getDate()} ${TH_M[d.getMonth()]} ${d.getFullYear()+543}`; }
+function fmtTime(ms){ const d = new Date(ms); return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")} น.`; }
+function fmtFull(ms){ return fmtDate(ms) + " " + fmtTime(ms); }
+function isToday(ms){ const d=new Date(ms), n=new Date(); return d.getDate()===n.getDate() && d.getMonth()===n.getMonth() && d.getFullYear()===n.getFullYear(); }
+function inPeriod(ms, period){
+  if (!period || period === "all") return true;
+  const d = new Date(ms), n = new Date();
+  if (period === "thisMonth") return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth();
+  if (period === "lastMonth"){ const lm = new Date(n.getFullYear(), n.getMonth()-1, 1); return d.getFullYear()===lm.getFullYear() && d.getMonth()===lm.getMonth(); }
+  if (period === "thisYear") return d.getFullYear()===n.getFullYear();
+  if (period.indexOf("year:") === 0) return d.getFullYear()===Number(period.slice(5));
+  return true;
+}
+
+function notifyLine(payload){
+  if (!APPS_SCRIPT_URL) return;
+  try{
+    fetch(APPS_SCRIPT_URL, { method:"POST", mode:"no-cors", headers:{ "Content-Type":"text/plain;charset=utf-8" }, body: JSON.stringify(payload) }).catch(()=>{});
+  }catch(e){}
+}
+
+const BoltIcon = ({s=24}) => (<svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.5 13.5H11l-1 8.5L19.5 10H13l0-8z"/></svg>);
+const GearIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>);
+
+const TrashIcon = ({s=16}) => (<svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>);
+
+function Splash({ msg }){
+  return (<div className="pin-screen"><div className="pin-card"><div className="logo"><BoltIcon s={28}/></div><div className="pin-msg" style={{color:'var(--muted)'}}>{msg}</div></div></div>);
+}
+
+/* ====================================================================
+   PIN GATE (ใช้ร่วมกันทั้งสองหน้า)
+   ==================================================================== */
+function PinGate({ onUnlock }){
+  const [storedHash, setStoredHash] = useState(null);   // null=กำลังโหลด, ""=ยังไม่เคยตั้ง
+  const [setupMode, setSetupMode] = useState(false);
+  const [stage, setStage] = useState("enter");          // enter | setup1 | setup2
+  const [code, setCode] = useState("");
+  const [confirmFirst, setConfirmFirst] = useState("");
+  const [msg, setMsg] = useState("");
+  const [bad, setBad] = useState(false);
+
+  useEffect(() => {
+    db.ref("config/pinHash").get()
+      .then(snap => {
+        const h = snap.exists() ? norm(snap.val()) : "";
+        if (!h){ setSetupMode(true); setStage("setup1"); }
+        setStoredHash(h);
+      })
+      .catch(() => { setMsg("อ่านค่าจากฐานข้อมูลไม่ได้ ตรวจ Rules ของ Firebase"); setStoredHash(""); });
+  }, []);
+
+  const pressNum = (n) => { setBad(false); setMsg(""); setCode(c => c.length >= 4 ? c : c + n); };
+  const del = () => { setBad(false); setMsg(""); setCode(c => c.slice(0,-1)); };
+
+  useEffect(() => {
+    if (code.length !== 4) return;
+    (async () => {
+      if (stage === "enter"){
+        if (await sha256(code) === storedHash){ sessionStorage.setItem("pea_unlocked","1"); onUnlock(); }
+        else { setBad(true); setMsg("รหัสไม่ถูกต้อง ลองใหม่อีกครั้ง"); setTimeout(()=>{ setCode(""); setBad(false); }, 600); }
+      } else if (stage === "setup1"){
+        setConfirmFirst(code); setTimeout(()=>{ setCode(""); setStage("setup2"); setMsg(""); }, 150);
+      } else if (stage === "setup2"){
+        if (code === confirmFirst){ await db.ref("config/pinHash").set(await sha256(code)); sessionStorage.setItem("pea_unlocked","1"); onUnlock(); }
+        else { setBad(true); setMsg("รหัสไม่ตรงกัน เริ่มตั้งใหม่"); setTimeout(()=>{ setCode(""); setConfirmFirst(""); setStage("setup1"); setBad(false); }, 700); }
+      }
+    })();
+  }, [code]); // eslint-disable-line
+
+  if (storedHash === null) return <Splash msg="กำลังโหลด…" />;
+
+  const heading = stage==="enter" ? "ใส่รหัส PIN เพื่อเข้าใช้งาน" : stage==="setup1" ? "ตั้งรหัส PIN ครั้งแรก" : "ยืนยันรหัส PIN อีกครั้ง";
+  const desc = stage==="enter" ? "รหัสผ่าน 4 หลัก" : stage==="setup1" ? "กำหนดรหัส 4 หลักสำหรับระบบนี้" : "พิมพ์รหัสเดิมซ้ำเพื่อยืนยัน";
+
+  return (
+    <div className="pin-screen">
+      <div className="pin-card">
+        <div className="logo"><BoltIcon s={28}/></div>
+        <h2>{heading}</h2>
+        <div className="desc">{desc}</div>
+        {setupMode && stage !== "enter" && <div className="setup-note">ยังไม่เคยตั้งรหัสในระบบนี้ — กำหนดรหัส 4 หลักได้เลย ระบบจะจำไว้ในฐานข้อมูล (ไม่เก็บในโค้ด)</div>}
+        <div className="pin-dots">{[0,1,2,3].map(i => <div key={i} className={"pin-dot" + (i<code.length?" on":"") + (bad?" bad":"")}></div>)}</div>
+        <div className="pin-msg">{msg}</div>
+        <div className="keypad">
+          {[1,2,3,4,5,6,7,8,9].map(n => <button key={n} className="key" onClick={()=>pressNum(String(n))}>{n}</button>)}
+          <div className="key blank"></div>
+          <button className="key" onClick={()=>pressNum("0")}>0</button>
+          <button className="key fn" onClick={del}>ลบ</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ====================================================================
+   CHANGE PIN MODAL
+   ==================================================================== */
+function ChangePinModal({ onClose, onDone }){
+  const [a, setA] = useState(""); const [b, setB] = useState("");
+  const [msg, setMsg] = useState(""); const [busy, setBusy] = useState(false);
+  const onlyDigits = (v) => v.replace(/\D/g,"").slice(0,4);
+  const save = async () => {
+    setMsg("");
+    if (a.length !== 4) return setMsg("รหัสใหม่ต้องเป็นตัวเลข 4 หลัก");
+    if (a !== b) return setMsg("รหัสยืนยันไม่ตรงกัน");
+    setBusy(true);
+    try{ await db.ref("config/pinHash").set(await sha256(a)); onDone(); }
+    catch(e){ setMsg("บันทึกไม่สำเร็จ: " + (e.message||"")); setBusy(false); }
+  };
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={(e)=>e.stopPropagation()}>
+        <h3>เปลี่ยนรหัส PIN</h3>
+        <p>ตั้งรหัสใหม่ 4 หลัก จะมีผลกับทั้งหน้าฟอร์มและ Dashboard (เก็บแบบเข้ารหัสในฐานข้อมูล)</p>
+        <label>รหัสใหม่</label>
+        <input inputMode="numeric" value={a} onChange={(e)=>setA(onlyDigits(e.target.value))} placeholder="••••" />
+        <label>ยืนยันรหัสใหม่</label>
+        <input inputMode="numeric" value={b} onChange={(e)=>setB(onlyDigits(e.target.value))} placeholder="••••" />
+        <div className="mmsg" style={{color:'var(--red)'}}>{msg}</div>
+        <div className="row">
+          <button className="cancel" onClick={onClose}>ยกเลิก</button>
+          <button className="save" disabled={busy} onClick={save}>{busy?"กำลังบันทึก…":"บันทึกรหัสใหม่"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ====================================================================
+   DELETE MODAL (ยืนยันด้วย PIN ก่อนลบ)
+   ==================================================================== */
+function DoneModal({ rec, onClose, onDone }){
+  const [val, setVal] = useState(rec.newMeterNo || "");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const save = async () => {
+    setMsg("");
+    const v = norm(val);
+    if (!v) return setMsg("กรุณากรอก PEA No. มิเตอร์เครื่องใหม่");
+    setBusy(true);
+    try{
+      await db.ref("records/" + rec.id).update({
+        status: ST_DONE,
+        newMeterNo: v,
+        statusUpdatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      onDone();
+    }catch(e){ setMsg("บันทึกไม่สำเร็จ: " + (e.message||"")); setBusy(false); }
+  };
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={(e)=>e.stopPropagation()}>
+        <h3>ยืนยันต่อกลับเรียบร้อย</h3>
+        <p>มิเตอร์ลูกที่เสีย: <b>{rec.brokenMeterNo || "-"}</b><br/>กรอกหมายเลขมิเตอร์ลูกใหม่ที่นำไปติดตั้งแทน</p>
+        <label>PEA No. มิเตอร์เครื่องใหม่</label>
+        <input inputMode="numeric" autoFocus value={val} onChange={(e)=>setVal(e.target.value)} placeholder="เช่น 24804702" style={{letterSpacing:'normal', textAlign:'left', fontSize:'1rem'}} />
+        <div className="mmsg" style={{color:'var(--red)'}}>{msg}</div>
+        <div className="row">
+          <button className="cancel" onClick={onClose}>ยกเลิก</button>
+          <button className="save" disabled={busy} onClick={save}>{busy?"กำลังบันทึก…":"ยืนยันต่อกลับ"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeleteModal({ rec, onClose, onDeleted }){
+  const [code, setCode] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const onlyDigits = (v) => v.replace(/\D/g,"").slice(0,4);
+  const doDelete = async () => {
+    setMsg("");
+    if (code.length !== 4) return setMsg("ใส่รหัส PIN 4 หลัก");
+    setBusy(true);
+    try{
+      const snap = await db.ref("config/pinHash").get();
+      const h = snap.exists() ? norm(snap.val()) : "";
+      if (await sha256(code) !== h){ setMsg("รหัส PIN ไม่ถูกต้อง"); setBusy(false); return; }
+      await db.ref("records/" + rec.id).remove();
+      onDeleted();
+    }catch(e){ setMsg("ลบไม่สำเร็จ: " + (e.message||"")); setBusy(false); }
+  };
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={(e)=>e.stopPropagation()}>
+        <h3>ลบรายการนี้?</h3>
+        <p>มิเตอร์ลูกที่เสีย: <b>{rec.brokenMeterNo || "-"}</b> · ผู้ดำเนินการ: {rec.operatorName || "-"}<br/>การลบกู้คืนไม่ได้ — ใส่รหัส PIN เพื่อยืนยัน</p>
+        <label>รหัส PIN</label>
+        <input inputMode="numeric" autoFocus value={code} onChange={(e)=>setCode(onlyDigits(e.target.value))} placeholder="••••" />
+        <div className="mmsg" style={{color:'var(--red)'}}>{msg}</div>
+        <div className="row">
+          <button className="cancel" onClick={onClose}>ยกเลิก</button>
+          <button className="del-confirm" disabled={busy} onClick={doDelete}>{busy?"กำลังลบ…":"ลบรายการ"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ====================================================================
+   PHOTO INPUT
+   ==================================================================== */
+function PhotoInput({ label, required, file, onPick, error }){
+  const ref = useRef();
+  const preview = useMemo(() => file ? URL.createObjectURL(file) : null, [file]);
+  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
+  return (
+    <div className="field">
+      <label>{label}{required && <span className="req">*</span>}</label>
+      <div className={"photo-box" + (error ? " err" : "")} onClick={()=>ref.current.click()}>
+        {preview
+          ? (<><img src={preview} alt="" /><button type="button" className="photo-redo" onClick={(e)=>{e.stopPropagation(); ref.current.click();}}>เปลี่ยนรูป</button></>)
+          : (<div className="photo-ph"><div className="ico">📷</div><div className="t">แตะเพื่อถ่าย / เลือกรูป</div><div className="s">ถ่ายใหม่ หรือเลือกจากคลังภาพก็ได้</div></div>)
+        }
+      </div>
+      <input ref={ref} type="file" accept="image/*" style={{display:"none"}}
+        onChange={(e)=>{ const f = e.target.files[0]; if (f) onPick(f); e.target.value=""; }} />
+    </div>
+  );
+}
+
+/* ====================================================================
+   FORM PAGE (ลิงค์ 1)
+   ==================================================================== */
+const EMPTY = { operatorName:"", brokenMeterNo:"", customerNo:"", customerName:"", customerPhone:"", deviceNo:"" };
+
+function FormPage(){
+  const [f, setF] = useState(EMPTY);
+  const [brokenFile, setBrokenFile] = useState(null);
+  const [installFile, setInstallFile] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [busy, setBusy] = useState(false);
+  const [stage, setStage] = useState("");
+  const [toast, setToast] = useState(null);
+  const [done, setDone] = useState(false);
+  const [busyDevices, setBusyDevices] = useState([]); // เครื่องที่กำลังใช้งาน (ยังไม่ต่อกลับ)
+  const [gps, setGps] = useState(null);        // {lat,lng,acc} หรือ null
+  const [gpsBusy, setGpsBusy] = useState(false);
+
+  // อ่านสถานะเครื่องแบบเรียลไทม์ เพื่อปิดไม่ให้เลือกเครื่องที่ถูกใช้งานอยู่
+  useEffect(() => {
+    const ref = db.ref("records");
+    const cb = ref.on("value", (snap) => {
+      const inUse = new Set();
+      snap.forEach(ch => { const r = ch.val(); if (r && r.status !== ST_DONE && r.deviceNo) inUse.add(Number(r.deviceNo)); });
+      setBusyDevices([...inUse]);
+    });
+    return () => ref.off("value", cb);
+  }, []);
+
+  const set = (k) => (e) => setF(s => ({ ...s, [k]: e.target.value }));
+  const showToast = (msg, type) => { setToast({ msg, type }); setTimeout(()=>setToast(null), 3200); };
+
+  const captureGps = () => {
+    if (!navigator.geolocation){ showToast("อุปกรณ์นี้ไม่รองรับการจับพิกัด GPS", "bad"); return; }
+    setGpsBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setGps({ lat:+pos.coords.latitude.toFixed(6), lng:+pos.coords.longitude.toFixed(6), acc: Math.round(pos.coords.accuracy||0) }); setGpsBusy(false); },
+      (err) => { setGpsBusy(false); showToast(err.code===1 ? "ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง — เปิดสิทธิ์ตำแหน่งในเบราว์เซอร์ก่อน" : "จับพิกัดไม่สำเร็จ ลองใหม่อีกครั้ง", "bad"); },
+      { enableHighAccuracy:true, timeout:15000, maximumAge:0 }
+    );
+  };
+
+  const validate = () => {
+    const er = {};
+    if (!norm(f.operatorName))  er.operatorName  = true;
+    if (!norm(f.brokenMeterNo)) er.brokenMeterNo = true;
+    if (!f.deviceNo)            er.deviceNo       = true;
+    if (!brokenFile)            er.broken  = true;
+    if (!installFile)           er.install = true;
+    setErrors(er);
+    return Object.keys(er).length === 0;
+  };
+
+  const submit = async () => {
+    if (busy) return;
+    if (!validate()){
+      showToast("กรุณากรอกข้อมูล/แนบรูปที่มี * ให้ครบ", "bad");
+      const firstErr = document.querySelector(".input.err, select.err, .photo-box.err");
+      if (firstErr) firstErr.scrollIntoView({ behavior:"smooth", block:"center" });
+      return;
+    }
+    if (busyDevices.includes(Number(f.deviceNo))){
+      setErrors(e => ({ ...e, deviceNo: true }));
+      showToast("เครื่องนี้กำลังถูกใช้งานอยู่ (ยังไม่ต่อกลับ) กรุณาเลือกเครื่องอื่น", "bad");
+      const sel = document.querySelector("select");
+      if (sel) sel.scrollIntoView({ behavior:"smooth", block:"center" });
+      return;
+    }
+    setBusy(true);
+    try{
+      setStage("กำลังอัปโหลดรูปมิเตอร์…");
+      const b1 = await resizeImage(brokenFile);
+      const up1 = await uploadToImgBB(b1);
+
+      setStage("กำลังอัปโหลดรูปการติดตั้ง…");
+      const b2 = await resizeImage(installFile);
+      const up2 = await uploadToImgBB(b2);
+
+      setStage("กำลังบันทึกข้อมูล…");
+      const rec = {
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        operatorName:  norm(f.operatorName),
+        brokenMeterNo: norm(f.brokenMeterNo),
+        customerNo:    norm(f.customerNo),
+        customerName:  norm(f.customerName),
+        customerPhone: norm(f.customerPhone),
+        brokenPhoto:   up1.url,  brokenThumb:  up1.thumb,
+        installPhoto:  up2.url,  installThumb: up2.thumb,
+        deviceNo:      Number(f.deviceNo),
+        status:        ST_ACTIVE
+      };
+      if (gps){ rec.gpsLat = gps.lat; rec.gpsLng = gps.lng; rec.gpsAcc = gps.acc; }
+      const refRec = db.ref("records").push();
+      await refRec.set(rec);
+
+      // แจ้งเตือน LINE OA (best-effort)
+      notifyLine({
+        type: "new_record",
+        recordId: refRec.key,
+        operatorName: rec.operatorName,
+        brokenMeterNo: rec.brokenMeterNo,
+        customerNo: rec.customerNo,
+        customerName: rec.customerName,
+        customerPhone: rec.customerPhone,
+        deviceNo: rec.deviceNo,
+        timeText: fmtFull(Date.now()),
+        brokenPhoto: rec.brokenPhoto, brokenThumb: rec.brokenThumb,
+        installPhoto: rec.installPhoto, installThumb: rec.installThumb,
+        gpsLat: gps ? gps.lat : null, gpsLng: gps ? gps.lng : null,
+        dashboardUrl: DASH_URL
+      });
+
+      setDone(true);
+    }catch(e){
+      showToast("เกิดข้อผิดพลาด: " + (e.message || "ส่งข้อมูลไม่สำเร็จ"), "bad");
+    }finally{
+      setBusy(false); setStage("");
+    }
+  };
+
+  const newEntry = () => {
+    setF(s => ({ ...EMPTY, operatorName: s.operatorName })); // เก็บชื่อผู้ดำเนินการไว้ กรอกชุดต่อไปได้เร็ว
+    setBrokenFile(null); setInstallFile(null); setGps(null); setErrors({}); setDone(false);
+    window.scrollTo({ top:0, behavior:"smooth" });
+  };
+
+  return (
+    <>
+      <div className="appbar">
+        <div className="appbar-inner">
+          <div className="logo"><BoltIcon s={24}/></div>
+          <div>
+            <div className="title">บันทึกข้อมูลชุดอุปกรณ์ช่วยต่อตรงมิเตอร์ฉุกเฉิน</div>
+            <div className="subtitle">การไฟฟ้าส่วนภูมิภาคจังหวัดลำพูน (PEA ลำพูน)</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="wrap">
+        {done ? (
+          <div className="card done">
+            <div className="ring">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h2>บันทึกข้อมูลเรียบร้อย</h2>
+            <p>ส่งใบงานให้แผนกมิเตอร์แล้ว สถานะปัจจุบัน: ต่อตรง</p>
+            <button className="btn" onClick={newEntry}>บันทึกรายการใหม่</button>
+          </div>
+        ) : (
+          <>
+            <div className="intro">
+              <span style={{fontSize:'1.3rem', lineHeight:1}}>🛠️</span>
+              <div>กรอกข้อมูลเมื่อ <b>ติดตั้งชุดอุปกรณ์ช่วยต่อตรงมิเตอร์ฉุกเฉิน</b> แล้ว ระบบจะแจ้งเตือนแผนกมิเตอร์ผ่าน LINE ทันที (ช่อง * คือข้อมูลที่ต้องกรอก)</div>
+            </div>
+
+            <div className="card">
+              <form onSubmit={(e)=>e.preventDefault()}>
+                <div className="field">
+                  <label>ชื่อ-นามสกุล พชง./ชชง. ผู้ดำเนินการ<span className="req">*</span></label>
+                  <input className={"input" + (errors.operatorName ? " err" : "")} value={f.operatorName} onChange={set("operatorName")} placeholder="เช่น นายสมชาย ใจดี" />
+                </div>
+
+                <div className="field">
+                  <label>หมายเลขมิเตอร์ลูกที่เสีย<span className="req">*</span></label>
+                  <input className={"input" + (errors.brokenMeterNo ? " err" : "")} value={f.brokenMeterNo} onChange={set("brokenMeterNo")} inputMode="numeric" placeholder="เช่น 24804701" />
+                  <div className="hint">หากไม่ทราบ ให้ใส่หมายเลขมิเตอร์ลูกใกล้เคียง</div>
+                </div>
+
+                <div className="field">
+                  <label>พิกัด GPS<span className="opt">(กรณีไม่สามารถระบุหมายเลขมิเตอร์ได้)</span></label>
+                  {gps ? (
+                    <div className="gps-box">
+                      <div className="gps-ok">
+                        <span className="gps-pin">📍</span>
+                        <div>
+                          <div className="gps-coord">{gps.lat}, {gps.lng}</div>
+                          <div className="gps-acc">ความแม่นยำ ~{gps.acc} ม. · <a href={`https://www.google.com/maps/search/?api=1&query=${gps.lat},${gps.lng}`} target="_blank" rel="noreferrer">ดูใน Google Maps</a></div>
+                        </div>
+                      </div>
+                      <div className="gps-actions">
+                        <button type="button" className="gps-btn-sm" onClick={captureGps} disabled={gpsBusy}>{gpsBusy?"กำลังจับ…":"จับพิกัดใหม่"}</button>
+                        <button type="button" className="gps-btn-sm clear" onClick={()=>setGps(null)}>ลบพิกัด</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button type="button" className="gps-capture" onClick={captureGps} disabled={gpsBusy}>
+                      {gpsBusy ? (<><span className="spin spin-dark"></span>กำลังจับพิกัด…</>) : (<>📍 จับพิกัดปัจจุบัน</>)}
+                    </button>
+                  )}
+                  <div className="hint">ใช้เมื่ออ่านหมายเลขมิเตอร์ไม่ได้ (เช่น มิเตอร์ไหม้) — กดจับตำแหน่งจริงขณะอยู่หน้างานเพื่อความแม่นยำ</div>
+                </div>
+
+                <div className="field">
+                  <label>หมายเลขผู้ใช้ไฟ<span className="opt">(ไม่บังคับ)</span></label>
+                  <input className="input" value={f.customerNo} onChange={set("customerNo")} inputMode="numeric" placeholder="—" />
+                </div>
+
+                <div className="field">
+                  <label>ชื่อผู้ใช้ไฟ<span className="opt">(ไม่บังคับ)</span></label>
+                  <input className="input" value={f.customerName} onChange={set("customerName")} placeholder="—" />
+                </div>
+
+                <div className="field">
+                  <label>เบอร์โทรศัพท์ผู้ใช้ไฟ<span className="opt">(ไม่บังคับ)</span></label>
+                  <input className="input" value={f.customerPhone} onChange={set("customerPhone")} inputMode="tel" placeholder="—" />
+                </div>
+
+                <PhotoInput label="รูปถ่ายมิเตอร์ที่เสียหาย/ชำรุด" required file={brokenFile}
+                  onPick={(file)=>{ setBrokenFile(file); setErrors(e=>({...e, broken:false})); }} error={errors.broken} />
+
+                <PhotoInput label="รูปถ่ายการติดตั้งชุดนวัตกรรม" required file={installFile}
+                  onPick={(file)=>{ setInstallFile(file); setErrors(e=>({...e, install:false})); }} error={errors.install} />
+
+                <div className="field">
+                  <label>หมายเลขเครื่องนวัตกรรม<span className="req">*</span></label>
+                  <select className={errors.deviceNo ? "err" : ""} value={f.deviceNo} onChange={set("deviceNo")}>
+                    <option value="">— เลือกหมายเลขเครื่อง —</option>
+                    {Array.from({length:DEVICE_COUNT}, (_,i)=>i+1).map(n => {
+                      const used = busyDevices.includes(n);
+                      return <option key={n} value={n} disabled={used}>{used ? `เครื่องที่ ${n} — กำลังใช้งาน` : `เครื่องที่ ${n}`}</option>;
+                    })}
+                  </select>
+                  <div className="hint">เครื่องที่กำลังใช้งานอยู่ (ยังไม่ต่อกลับ) จะเลือกไม่ได้{busyDevices.length>0 ? ` — ตอนนี้ใช้งานอยู่: เครื่องที่ ${[...busyDevices].sort((a,b)=>a-b).join(", ")}` : ""}</div>
+                </div>
+
+                <button className="btn" disabled={busy} onClick={submit}>
+                  {busy ? (<><span className="spin"></span>{stage || "กำลังส่ง…"}</>) : "ส่งข้อมูล"}
+                </button>
+              </form>
+            </div>
+          </>
+        )}
+      </div>
+
+      {toast && <div className={"toast " + (toast.type==="ok" ? "ok" : toast.type==="bad" ? "bad" : "")}>{toast.msg}</div>}
+    </>
+  );
+}
+
+/* ====================================================================
+   DASHBOARD (ลิงค์ 2 — #admin)
+   ==================================================================== */
+const PinIcon = ({s=14}) => (<svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>);
+
+function GpsModal({ rec, onClose, onToast }){
+  const lat = rec.gpsLat, lng = rec.gpsLng;
+  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  const text = `พิกัดมิเตอร์ ${rec.brokenMeterNo || ""}\n${lat}, ${lng}\n${mapUrl}`;
+  const openMaps  = () => window.open(mapUrl, "_blank", "noopener");
+  const shareLine = () => window.open("https://line.me/R/msg/text/?" + encodeURIComponent(text), "_blank", "noopener");
+  const copy = async () => {
+    try{ await navigator.clipboard.writeText(mapUrl); onToast("คัดลอกลิงก์แล้ว", "ok"); }
+    catch(e){ onToast("คัดลอกไม่สำเร็จ", "bad"); }
+  };
+  const nativeShare = async () => { try{ await navigator.share({ title:"พิกัด GPS", text, url: mapUrl }); }catch(e){} };
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={(e)=>e.stopPropagation()}>
+        <h3>พิกัด GPS</h3>
+        <p>มิเตอร์: <b>{rec.brokenMeterNo || "-"}</b>{rec.gpsAcc ? ` · ความแม่นยำ ~${rec.gpsAcc} ม.` : ""}</p>
+        <div className="gps-coord-big">{lat}, {lng}</div>
+        <div className="gps-modal-actions">
+          <button className="gps-act primary" onClick={openMaps}>🗺️ เปิดใน Google Maps</button>
+          <button className="gps-act" onClick={shareLine}>💬 แชร์เข้า LINE</button>
+          <button className="gps-act" onClick={copy}>🔗 คัดลอกลิงก์</button>
+          {navigator.share && <button className="gps-act" onClick={nativeShare}>📤 แชร์ / ส่งต่อ…</button>}
+        </div>
+        <div className="row" style={{marginTop:14}}>
+          <button className="cancel" onClick={onClose}>ปิด</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ====================================================================
+   CHARTS (วาดด้วย SVG/CSS ในตัว ไม่พึ่งไลบรารีภายนอก)
+   ==================================================================== */
+function StatusDonut({ active, done, total }){
+  const r = 52, sw = 22, cx = 70, cy = 70;
+  const C = 2 * Math.PI * r;
+  const doneLen   = total ? C * (done/total)   : 0;
+  const activeLen = total ? C * (active/total) : 0;
+  return (
+    <div className="donut-wrap">
+      <svg width="140" height="140" viewBox="0 0 140 140" role="img">
+        <g transform="rotate(-90 70 70)">
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="#EEF0F4" strokeWidth={sw} />
+          {done > 0   && <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--green)" strokeWidth={sw} strokeDasharray={`${doneLen} ${C-doneLen}`} />}
+          {active > 0 && <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--red)"   strokeWidth={sw} strokeDasharray={`${activeLen} ${C-activeLen}`} strokeDashoffset={-doneLen} />}
+        </g>
+        <text x="70" y="65" textAnchor="middle" className="donut-num">{total}</text>
+        <text x="70" y="85" textAnchor="middle" className="donut-lab">รายการ</text>
+      </svg>
+      <div className="donut-legend">
+        <div><span className="lg-dot" style={{background:'var(--red)'}}></span>กำลังต่อตรง (รอแก้ไข) <b>{active}</b></div>
+        <div><span className="lg-dot" style={{background:'var(--green)'}}></span>ต่อกลับเรียบร้อย <b>{done}</b></div>
+      </div>
+    </div>
+  );
+}
+
+function DateBarChart({ data }){
+  if (!data.length) return <div className="chart-empty">ยังไม่มีข้อมูลในช่วงเวลานี้</div>;
+  const H = 150, max = Math.max(...data.map(d => d.count), 1);
+  return (
+    <div className="vbar-scroll">
+      <div className="vbar-chart" style={{minWidth: Math.max(data.length*46, 80) + 'px'}}>
+        {data.map(d => (
+          <div className="vbar-col" key={d.key}>
+            <div className="vbar-bararea">
+              <div className="vbar-val">{d.count}</div>
+              <div className="vbar-fill" style={{height: Math.max(Math.round(d.count/max*H), 3) + 'px'}}></div>
+            </div>
+            <div className="vbar-x">{d.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function OperatorBars({ data }){
+  if (!data.length) return <div className="chart-empty">ยังไม่มีข้อมูลในช่วงเวลานี้</div>;
+  const max = Math.max(...data.map(d => d.count), 1);
+  return (
+    <div className="hbar-list">
+      {data.map((d, i) => (
+        <div className="hbar-row" key={i}>
+          <div className="hbar-name" title={d.name}>{d.name}</div>
+          <div className="hbar-track"><div className="hbar-fill" style={{width: (d.count/max*100) + '%'}}></div></div>
+          <div className="hbar-val">{d.count}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Dashboard(){
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all"); // all | active | done
+  const [q, setQ] = useState("");
+  const [lightbox, setLightbox] = useState(null);
+  const [showPin, setShowPin] = useState(false);
+  const [deleteRec, setDeleteRec] = useState(null);
+  const [gpsView, setGpsView] = useState(null);
+  const [doneRec, setDoneRec] = useState(null);
+  const [period, setPeriod] = useState("all"); // all | thisMonth | lastMonth | thisYear | year:YYYY
+  const [toast, setToast] = useState(null);
+  const showToast = (msg, type) => { setToast({msg,type}); setTimeout(()=>setToast(null), 3000); };
+
+  useEffect(() => {
+    const ref = db.ref("records");
+    const cb = ref.on("value", (snap) => {
+      const arr = [];
+      snap.forEach(ch => { arr.push({ id: ch.key, ...ch.val() }); });
+      arr.sort((x,y) => (y.timestamp||0) - (x.timestamp||0)); // ใหม่สุดอยู่บน
+      setRecords(arr); setLoading(false);
+    }, () => setLoading(false));
+    return () => ref.off("value", cb);
+  }, []);
+
+  const periodRecords = useMemo(() => records.filter(r => inPeriod(r.timestamp, period)), [records, period]);
+
+  const yearOptions = useMemo(() => {
+    const cur = new Date().getFullYear();
+    return [...new Set(records.map(r => new Date(r.timestamp).getFullYear()).filter(Boolean))]
+      .filter(y => y !== cur).sort((a,b) => b - a);
+  }, [records]);
+
+  const stats = useMemo(() => {
+    const active = periodRecords.filter(r => r.status !== ST_DONE);
+    const done   = periodRecords.filter(r => r.status === ST_DONE);
+    const devs   = [...new Set(active.map(r => r.deviceNo).filter(Boolean))].sort((a,b)=>a-b);
+    return { total: periodRecords.length, active: active.length, done: done.length, devs, today: periodRecords.filter(r=>isToday(r.timestamp)).length };
+  }, [periodRecords]);
+
+  const filtered = useMemo(() => {
+    let rows = periodRecords;
+    if (filter === "active") rows = rows.filter(r => r.status !== ST_DONE);
+    if (filter === "done")   rows = rows.filter(r => r.status === ST_DONE);
+    const k = norm(q).toLowerCase();
+    if (k){
+      rows = rows.filter(r => [r.operatorName, r.brokenMeterNo, r.newMeterNo, r.customerNo, r.customerName, r.customerPhone, "เครื่องที่ "+r.deviceNo]
+        .map(v => norm(v).toLowerCase()).some(v => v.includes(k)));
+    }
+    return rows;
+  }, [periodRecords, filter, q]);
+
+  const byDate = useMemo(() => {
+    const map = new Map();
+    periodRecords.forEach(r => {
+      const d = new Date(r.timestamp);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      const label = `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${String((d.getFullYear()+543)%100).padStart(2,"0")}`;
+      if (!map.has(key)) map.set(key, { key, label, count: 0 });
+      map.get(key).count++;
+    });
+    return [...map.values()].sort((a,b) => a.key < b.key ? -1 : 1);
+  }, [periodRecords]);
+
+  const byOperator = useMemo(() => {
+    const map = new Map();
+    periodRecords.forEach(r => { const name = norm(r.operatorName) || "ไม่ระบุ"; map.set(name, (map.get(name)||0) + 1); });
+    return [...map.entries()].map(([name, count]) => ({ name, count })).sort((a,b) => b.count - a.count);
+  }, [periodRecords]);
+
+  const setStatus = (rec, status) => {
+    const upd = { status, statusUpdatedAt: firebase.database.ServerValue.TIMESTAMP };
+    if (status === ST_ACTIVE) upd.newMeterNo = null;   // เปลี่ยนกลับเป็นต่อตรง → ล้างเลขมิเตอร์ใหม่
+    db.ref("records/" + rec.id).update(upd)
+      .then(() => showToast(status === ST_DONE ? "อัปเดตเป็น “ต่อกลับเรียบร้อย” แล้ว" : "เปลี่ยนกลับเป็น “ต่อตรง” แล้ว", "ok"))
+      .catch(() => showToast("อัปเดตสถานะไม่สำเร็จ", "bad"));
+  };
+  const markDone = (rec) => setDoneRec(rec);   // เปิดหน้าต่างให้กรอกเลขมิเตอร์ใหม่ก่อนเปลี่ยนสถานะ
+  const revert   = (rec) => { if (confirm("เปลี่ยนสถานะกลับเป็น “ต่อตรง”? (เลข PEA มิเตอร์ใหม่จะถูกล้าง)")) setStatus(rec, ST_ACTIVE); };
+
+  return (
+    <>
+      <div className="appbar">
+        <div className="appbar-inner">
+          <div className="logo"><BoltIcon s={24}/></div>
+          <div>
+            <div className="title">สถานะข้อมูลชุดอุปกรณ์ช่วยต่อตรงมิเตอร์ฉุกเฉิน</div>
+            <div className="subtitle">การไฟฟ้าส่วนภูมิภาคจังหวัดลำพูน (PEA ลำพูน) · แผนกมิเตอร์</div>
+          </div>
+          <div className="bar-spacer"></div>
+          <button className="icon-btn" title="เปลี่ยนรหัส PIN" onClick={()=>setShowPin(true)}><GearIcon/></button>
+        </div>
+      </div>
+
+      <div className="wrap">
+        <div className="kpis">
+          <div className="kpi total"><div className="accent"></div><div className="lab">รายการทั้งหมด</div><div className="num">{stats.total}</div></div>
+          <div className="kpi active"><div className="accent"></div><div className="lab">กำลังต่อตรง (รอแก้ไข)</div><div className="num">{stats.active}</div></div>
+          <div className="kpi done"><div className="accent"></div><div className="lab">ต่อกลับเรียบร้อย</div><div className="num">{stats.done}</div></div>
+        </div>
+
+        <div className="devrow">
+          <span className="dl">เครื่องที่กำลังใช้งาน:</span>
+          {stats.devs.length === 0
+            ? <span className="dev-none">— ว่างทุกเครื่อง —</span>
+            : stats.devs.map(d => <span key={d} className="dev-chip">เครื่องที่ {d}</span>)}
+          {stats.today > 0 && <span style={{marginLeft:'auto', color:'var(--muted)'}}>วันนี้ {stats.today} รายการ</span>}
+        </div>
+
+        <div className="charts">
+          <div className="chart-card full">
+            <div className="chart-h">การใช้งานรายวัน (จำนวนรายการต่อวัน)</div>
+            <DateBarChart data={byDate} />
+          </div>
+          <div className="chart-card">
+            <div className="chart-h">สัดส่วนสถานะรายการ</div>
+            <StatusDonut active={stats.active} done={stats.done} total={stats.total} />
+          </div>
+          <div className="chart-card">
+            <div className="chart-h">จำนวนรายการตามผู้ดำเนินการ</div>
+            <OperatorBars data={byOperator} />
+          </div>
+        </div>
+
+        <div className="toolbar">
+          <select className="period-sel" value={period} onChange={(e)=>setPeriod(e.target.value)}>
+            <option value="all">ทั้งหมด</option>
+            <option value="thisMonth">เดือนนี้</option>
+            <option value="lastMonth">เดือนที่แล้ว</option>
+            <option value="thisYear">ปีนี้</option>
+            {yearOptions.map(y => <option key={y} value={"year:"+y}>ปี {y+543}</option>)}
+          </select>
+          <div className="tabs">
+            <button className={"tab"+(filter==="all"?" on":"")} onClick={()=>setFilter("all")}>ทั้งหมด<span className="cnt">{stats.total}</span></button>
+            <button className={"tab"+(filter==="active"?" on":"")} onClick={()=>setFilter("active")}>ต่อตรง<span className="cnt">{stats.active}</span></button>
+            <button className={"tab"+(filter==="done"?" on":"")} onClick={()=>setFilter("done")}>ต่อกลับแล้ว<span className="cnt">{stats.done}</span></button>
+          </div>
+          <div className="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="ค้นหา ชื่อ / เลขมิเตอร์ / ผู้ใช้ไฟ / เบอร์โทร" />
+          </div>
+        </div>
+
+        <div className="table-card">
+          {loading ? (
+            <div className="empty">กำลังโหลดข้อมูล…</div>
+          ) : filtered.length === 0 ? (
+            <div className="empty"><div className="ico">📭</div><div style={{marginTop:8}}>{records.length===0 ? "ยังไม่มีรายการบันทึกเข้ามา" : "ไม่พบรายการที่ตรงกับเงื่อนไขที่เลือก"}</div></div>
+          ) : (
+            <>
+              <div className="tscroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>วันที่/เวลา</th><th>ผู้ดำเนินการ</th><th>หมายเลขมิเตอร์</th><th>พิกัด GPS</th>
+                      <th>เลขผู้ใช้ไฟ</th><th>ชื่อผู้ใช้ไฟ</th><th>เบอร์โทร</th>
+                      <th>รูปมิเตอร์เสีย</th><th>รูปการติดตั้ง</th><th>เครื่องนวัตกรรม</th><th>PEA No. มิเตอร์ใหม่</th><th>สถานะ</th><th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map(r => (
+                      <tr key={r.id}>
+                        <td className="dt"><div className="d">{fmtDate(r.timestamp)}</div><div className="t">{fmtTime(r.timestamp)}</div></td>
+                        <td>{r.operatorName || "-"}</td>
+                        <td className="meter-no">{r.brokenMeterNo || "-"}</td>
+                        <td>{(r.gpsLat!=null && r.gpsLng!=null) ? <button className="gps-cell-btn" onClick={()=>setGpsView(r)}><PinIcon/> พิกัด</button> : <span className="muted-cell">-</span>}</td>
+                        <td className={r.customerNo?"":"muted-cell"}>{r.customerNo || "-"}</td>
+                        <td className={r.customerName?"":"muted-cell"}>{r.customerName || "-"}</td>
+                        <td className={r.customerPhone?"":"muted-cell"}>{r.customerPhone || "-"}</td>
+                        <td>{r.brokenThumb ? <img className="thumb" src={r.brokenThumb} onClick={()=>setLightbox({url:r.brokenPhoto, cap:"รูปมิเตอร์ที่เสียหาย"})} alt=""/> : "-"}</td>
+                        <td>{r.installThumb ? <img className="thumb" src={r.installThumb} onClick={()=>setLightbox({url:r.installPhoto, cap:"รูปการติดตั้งชุดนวัตกรรม"})} alt=""/> : "-"}</td>
+                        <td><span className="devbadge">{r.deviceNo}</span></td>
+                        <td className={r.newMeterNo ? "meter-no" : "muted-cell"}>{r.newMeterNo || "-"}</td>
+                        <td>
+                          {r.status === ST_DONE
+                            ? (<><span className="chip green"><span className="dot"></span>ต่อกลับเรียบร้อย</span><button className="revert" onClick={()=>revert(r)}>เปลี่ยนกลับ</button></>)
+                            : (<><span className="chip red"><span className="dot"></span>ต่อตรง</span><button className="act-btn" onClick={()=>markDone(r)}>✓ ต่อกลับเรียบร้อย</button></>)}
+                        </td>
+                        <td><button className="del-btn" title="ลบรายการ" onClick={()=>setDeleteRec(r)}><TrashIcon/></button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="cards">
+                {filtered.map(r => (
+                  <div className="rcard" key={r.id}>
+                    <div className="top">
+                      <div>
+                        <div className="when">{fmtDate(r.timestamp)} · {fmtTime(r.timestamp)}</div>
+                        <div className="mno">มิเตอร์ {r.brokenMeterNo || "-"}</div>
+                      </div>
+                      {r.status === ST_DONE
+                        ? <span className="chip green"><span className="dot"></span>ต่อกลับเรียบร้อย</span>
+                        : <span className="chip red"><span className="dot"></span>ต่อตรง</span>}
+                    </div>
+                    <dl>
+                      <dt>ผู้ดำเนินการ</dt><dd>{r.operatorName || "-"}</dd>
+                      <dt>เครื่องนวัตกรรม</dt><dd>เครื่องที่ {r.deviceNo}</dd>
+                      {r.newMeterNo && (<><dt>PEA No. มิเตอร์ใหม่</dt><dd>{r.newMeterNo}</dd></>)}
+                      {r.customerNo   && (<><dt>เลขผู้ใช้ไฟ</dt><dd>{r.customerNo}</dd></>)}
+                      {r.customerName && (<><dt>ชื่อผู้ใช้ไฟ</dt><dd>{r.customerName}</dd></>)}
+                      {r.customerPhone&& (<><dt>เบอร์โทร</dt><dd>{r.customerPhone}</dd></>)}
+                    </dl>
+                    {(r.gpsLat!=null && r.gpsLng!=null) && <button className="gps-cell-btn card-gps" onClick={()=>setGpsView(r)}><PinIcon/> ดูพิกัด GPS</button>}
+                    <div className="photos">
+                      {r.brokenThumb && <figure><figcaption>มิเตอร์เสีย</figcaption><img src={r.brokenThumb} onClick={()=>setLightbox({url:r.brokenPhoto, cap:"รูปมิเตอร์ที่เสียหาย"})} alt=""/></figure>}
+                      {r.installThumb && <figure><figcaption>การติดตั้ง</figcaption><img src={r.installThumb} onClick={()=>setLightbox({url:r.installPhoto, cap:"รูปการติดตั้งชุดนวัตกรรม"})} alt=""/></figure>}
+                    </div>
+                    <div className="foot">
+                      {r.status === ST_DONE
+                        ? <button className="revert" onClick={()=>revert(r)}>เปลี่ยนกลับเป็นต่อตรง</button>
+                        : <button className="mact" onClick={()=>markDone(r)}>✓ ต่อกลับเรียบร้อย</button>}
+                      <button className="del-btn" title="ลบรายการ" onClick={()=>setDeleteRec(r)}><TrashIcon/></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {lightbox && (
+        <div className="lb" onClick={()=>setLightbox(null)}>
+          <button className="lb-x" onClick={()=>setLightbox(null)}>×</button>
+          <img src={lightbox.url} alt="" onClick={(e)=>e.stopPropagation()} />
+          <div className="lb-cap">{lightbox.cap}</div>
+        </div>
+      )}
+      {showPin && <ChangePinModal onClose={()=>setShowPin(false)} onDone={()=>{ setShowPin(false); showToast("เปลี่ยนรหัส PIN เรียบร้อย", "ok"); }} />}
+      {deleteRec && <DeleteModal rec={deleteRec} onClose={()=>setDeleteRec(null)} onDeleted={()=>{ setDeleteRec(null); showToast("ลบรายการแล้ว", "ok"); }} />}
+      {doneRec && <DoneModal rec={doneRec} onClose={()=>setDoneRec(null)} onDone={()=>{ setDoneRec(null); showToast("อัปเดตเป็น “ต่อกลับเรียบร้อย” แล้ว", "ok"); }} />}
+      {gpsView && <GpsModal rec={gpsView} onClose={()=>setGpsView(null)} onToast={showToast} />}
+      {toast && <div className={"toast " + (toast.type==="ok"?"ok":toast.type==="bad"?"bad":"")}>{toast.msg}</div>}
+    </>
+  );
+}
+
+/* ====================================================================
+   ROOT + ROUTER (แยกหน้าด้วยท้าย URL: ""=ฟอร์ม, "#admin"=Dashboard)
+   ==================================================================== */
+function getView(){
+  const h = (location.hash || "").toLowerCase().replace(/[#/]/g, "");
+  return (h === "admin" || h === "dashboard") ? "admin" : "form";
+}
+
+function App(){
+  const [view, setView] = useState(getView());
+  const [authReady, setAuthReady] = useState(false);
+  const [authErr, setAuthErr] = useState("");
+  const [unlocked, setUnlocked] = useState(sessionStorage.getItem("pea_unlocked") === "1");
+
+  // เปลี่ยนหน้าเมื่อ URL hash เปลี่ยน
+  useEffect(() => {
+    const f = () => setView(getView());
+    window.addEventListener("hashchange", f);
+    return () => window.removeEventListener("hashchange", f);
+  }, []);
+
+  // ตั้ง data-view ของ body (คุมความกว้าง) + ชื่อแท็บ
+  useEffect(() => {
+    document.body.dataset.view = view;
+    document.title = (view === "admin" ? "สถานะข้อมูล" : "บันทึกข้อมูล") + "ชุดอุปกรณ์ช่วยต่อตรงมิเตอร์ฉุกเฉิน - PEA ลำพูน";
+  }, [view]);
+
+  // ล็อกอิน Anonymous "ทุกครั้งที่เปิดหน้า" (กันปัญหาตอนรีโหลดแล้ว session unlock ค้างไว้)
+  useEffect(() => {
+    auth.signInAnonymously().catch(() => setAuthErr("เชื่อมต่อฐานข้อมูลไม่ได้ ตรวจการตั้งค่า Firebase"));
+    const unsub = auth.onAuthStateChanged(u => { if (u) setAuthReady(true); });
+    return () => unsub();
+  }, []);
+
+  if (authErr) return <Splash msg={authErr} />;
+  if (!authReady) return <Splash msg="กำลังเชื่อมต่อ…" />;
+  if (!unlocked) return <PinGate onUnlock={() => setUnlocked(true)} />;
+  return view === "admin" ? <Dashboard/> : <FormPage/>;
+}
+
+try { document.body.dataset.view = getView(); } catch (e) {}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
